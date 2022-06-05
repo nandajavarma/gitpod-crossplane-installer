@@ -1,0 +1,28 @@
+apiVersion: compute.gcp.crossplane.io/v1beta1
+kind: Network
+metadata:
+  # set this to whatever you want
+  name: crossplane-built-nw
+spec:
+  providerConfigRef:
+    name: crossplane-provider-gcp
+  forProvider:
+    autoCreateSubnetworks: false
+    description: 'This is a network built by crossplane'
+    routingConfig:
+      routingMode: 'REGIONAL'
+---
+apiVersion: compute.gcp.crossplane.io/v1beta1
+kind: Subnetwork
+metadata:
+  name: crossplane-test-subnet
+spec:
+  providerConfigRef:
+    name: crossplane-provider-gcp
+  forProvider:
+    ipCidrRange: '192.168.0.0/21'
+    networkRef:
+      # make sure this matches the network name you defined in Network
+      name: crossplane-built-nw
+    # pick a the closest region to you, although for a tutorial, it won't matter much which
+    region: europe-west1

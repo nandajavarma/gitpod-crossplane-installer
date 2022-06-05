@@ -1,0 +1,52 @@
+# Copyright (c) 2021 SIGHUP s.r.l All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crossplane-api
+  labels: {}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crossplane-api
+  template:
+    metadata:
+      labels:
+        app: crossplane-api
+    spec:
+      securityContext:
+        fsGroup: 999
+        runAsGroup: 999
+        runAsUser: 1001
+      containers:
+      - name: hoppscotch
+        image: hoppscotch/hoppscotch:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 3000
+      - name: installer
+        image: nandajavarma/installer:latest
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crossplane-api
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    name: hoppscotch
+    protocol: TCP
+    targetPort: 3000
+  - port: 8080
+    name: installer
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: crossplane-api
